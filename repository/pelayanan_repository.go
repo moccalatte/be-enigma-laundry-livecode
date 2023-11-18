@@ -1,18 +1,41 @@
-package pelayanan
+package repository
 
 import (
 	"be-enigma-laundry-livecode/database"
+	"be-enigma-laundry-livecode/model/entity"
 	"fmt"
 	"log"
 )
 
-type Pelayanan struct {
-	ID            int
-	NamaPelayanan string
-	Satuan        string
-	Harga         float64
+// PelayananRepository adalah antarmuka yang mendefinisikan metode terkait dengan entitas Pelayanan.
+type PelayananRepository interface {
+	Get(id string) (entity.Pelayanan, error)
 }
 
+// pelayananRepository adalah implementasi dari PelayananRepository.
+type pelayananRepository struct {
+	db *database.DB
+}
+
+// Get mengambil data Pelayanan berdasarkan ID.
+func (pr *pelayananRepository) Get(id string) (entity.Pelayanan, error) {
+	var pelayanan entity.Pelayanan
+	err := pr.db.QueryRow(`SELECT * FROM pelayanan WHERE id = $1`, id).
+		Scan(
+			&pelayanan.ID,
+			&pelayanan.NamaPelayanan,
+			&pelayanan.Satuan,
+			&pelayanan.Harga,
+		)
+
+	if err != nil {
+		return entity.Pelayanan{}, err
+	}
+
+	return pelayanan, nil
+}
+
+// ShowMenuPelayanan menampilkan menu operasi Pelayanan.
 func ShowMenuPelayanan(db *database.DB) {
 	for {
 		fmt.Println("\n==== Menu Pelayanan ====")
@@ -37,6 +60,7 @@ func ShowMenuPelayanan(db *database.DB) {
 	}
 }
 
+// ViewPelayanan menampilkan data Pelayanan dari database.
 func ViewPelayanan(db *database.DB) {
 	rows, err := db.Query("SELECT id_pelayanan, nama_pelayanan, satuan, harga FROM pelayanan")
 	if err != nil {
@@ -60,6 +84,7 @@ func ViewPelayanan(db *database.DB) {
 	fmt.Println()
 }
 
+// InsertPelayanan menambahkan data Pelayanan ke database.
 func InsertPelayanan(db *database.DB) {
 	var namaPelayanan, satuan string
 	var harga float64
@@ -71,7 +96,7 @@ func InsertPelayanan(db *database.DB) {
 	fmt.Print("Masukkan Harga: ")
 	fmt.Scan(&harga)
 
-	//Validasi apakah harga lebih dari 0
+	// Validasi apakah harga lebih dari 0
 	if harga <= 0 {
 		fmt.Println("Harga harus lebih dari 0.")
 		return
@@ -82,4 +107,9 @@ func InsertPelayanan(db *database.DB) {
 		log.Fatal(err)
 	}
 	fmt.Println("Data Pelayanan berhasil ditambahkan.")
+}
+
+// NewPelayananRepository membuat instance baru dari PelayananRepository.
+func NewPelayananRepository(db *database.DB) PelayananRepository {
+	return &pelayananRepository{db: db}
 }

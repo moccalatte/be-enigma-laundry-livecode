@@ -29,11 +29,11 @@ func main() {
 
 		switch choice {
 		case 1:
-			pelanggan.ShowMenuPelanggan(db)
+			pelanggan.ShowMenuPelanggan((*database.DB)(db))
 		case 2:
-			pelayanan.ShowMenuPelayanan(db)
+			pelayanan.ShowMenuPelayanan((*database.DB)(db))
 		case 3:
-			transaksi.ShowMenuTransaksi(db)
+			transaksi.ShowMenuTransaksi((*database.DB)(db))
 		case 0:
 			fmt.Println("Keluar dari aplikasi.")
 			return

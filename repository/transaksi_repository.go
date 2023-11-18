@@ -1,23 +1,45 @@
-package transaksi
+package repository
 
 import (
 	"be-enigma-laundry-livecode/database"
+	"be-enigma-laundry-livecode/model/entity"
 	"fmt"
 	"log"
 	"time"
 )
 
-type Transaksi struct {
-	ID             int
-	IDPelanggan    int
-	IDPelayanan    int
-	Jumlah         int
-	TanggalMasuk   string
-	TanggalSelesai string
-	DiterimaOleh   string
-	TotalHarga     float64
+// TransaksiRepository adalah antarmuka untuk operasi data transaksi laundry.
+type TransaksiRepository interface {
+	Get(id string) (entity.Transaksi, error)
 }
 
+type transaksiRepository struct {
+	db *database.DB
+}
+
+// Get mengembalikan data transaksi laundry berdasarkan ID.
+func (tr *transaksiRepository) Get(id string) (entity.Transaksi, error) {
+	var transaksi entity.Transaksi
+	err := tr.db.QueryRow(`SELECT * FROM transaksi_laundry WHERE id_transaksi = $1`, id).
+		Scan(
+			&transaksi.ID,
+			&transaksi.IDPelanggan,
+			&transaksi.IDPelayanan,
+			&transaksi.Jumlah,
+			&transaksi.TanggalMasuk,
+			&transaksi.TanggalSelesai,
+			&transaksi.DiterimaOleh,
+			&transaksi.TotalHarga,
+		)
+
+	if err != nil {
+		return entity.Transaksi{}, err
+	}
+
+	return transaksi, nil
+}
+
+// ShowMenuTransaksi menampilkan menu untuk entitas transaksi laundry.
 func ShowMenuTransaksi(db *database.DB) {
 	for {
 		fmt.Println("\n==== Menu Transaksi ====")
@@ -48,6 +70,7 @@ func ShowMenuTransaksi(db *database.DB) {
 	}
 }
 
+// ViewTransaksi menampilkan data transaksi laundry.
 func ViewTransaksi(db *database.DB) {
 	rows, err := db.Query("SELECT * FROM transaksi_laundry")
 	if err != nil {
@@ -60,7 +83,7 @@ func ViewTransaksi(db *database.DB) {
 	fmt.Println("===============================================================================================")
 
 	for rows.Next() {
-		var t Transaksi
+		var t entity.Transaksi
 		if err := rows.Scan(&t.ID, &t.IDPelanggan, &t.IDPelayanan, &t.Jumlah, &t.TanggalMasuk, &t.TanggalSelesai, &t.DiterimaOleh, &t.TotalHarga); err != nil {
 			log.Fatal(err)
 		}
@@ -69,8 +92,9 @@ func ViewTransaksi(db *database.DB) {
 	fmt.Println()
 }
 
+// InsertTransaksi menambahkan data transaksi laundry.
 func InsertTransaksi(db *database.DB) {
-	var t Transaksi
+	var t entity.Transaksi
 	var tanggalMasuk, tanggalSelesai string
 
 	fmt.Print("Masukkan ID Pelanggan: ")
@@ -155,8 +179,9 @@ func InsertTransaksi(db *database.DB) {
 	fmt.Println("Data Transaksi Laundry berhasil ditambahkan.")
 }
 
+// UpdateTransaksi mengupdate data transaksi laundry.
 func UpdateTransaksi(db *database.DB) {
-	var t Transaksi
+	var t entity.Transaksi
 	var tanggalMasuk, tanggalSelesai string
 
 	fmt.Print("Masukkan ID Transaksi yang ingin diupdate: ")
@@ -177,7 +202,6 @@ func UpdateTransaksi(db *database.DB) {
 
 	// Validasi apakah ID Pelanggan valid
 	validPelanggan, err := IsPelangganValid(db, t.IDPelanggan)
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -255,13 +279,14 @@ func UpdateTransaksi(db *database.DB) {
 	fmt.Println("Data Transaksi Laundry berhasil diupdate.")
 }
 
+// DeleteTransaksi menghapus data transaksi laundry.
 func DeleteTransaksi(db *database.DB) {
 	var idTransaksi int
 
 	fmt.Print("Masukkan ID Transaksi yang mau dihapus: ")
 	fmt.Scan(&idTransaksi)
 
-	//Validasi apakah ID Transaksi valid
+	// Validasi apakah ID Transaksi valid
 	validTransaksi, err := IsTransaksiValid(db, idTransaksi)
 	if err != nil {
 		log.Fatal(err)
@@ -278,6 +303,7 @@ func DeleteTransaksi(db *database.DB) {
 	fmt.Println("Data Transaksi Laundry berhasil dihapus.")
 }
 
+// IsPelangganValid memvalidasi apakah ID Pelanggan valid.
 func IsPelangganValid(db *database.DB, idPelanggan int) (bool, error) {
 	var count int
 	err := db.QueryRow("SELECT COUNT(*) FROM pelanggan WHERE id_pelanggan = $1", idPelanggan).Scan(&count)
@@ -288,6 +314,7 @@ func IsPelangganValid(db *database.DB, idPelanggan int) (bool, error) {
 	return count > 0, nil
 }
 
+// IsPelayananValid memvalidasi apakah ID Pelayanan valid.
 func IsPelayananValid(db *database.DB, idPelayanan int) (bool, error) {
 	var count int
 	err := db.QueryRow("SELECT COUNT(*) FROM pelayanan WHERE id_pelayanan = $1", idPelayanan).Scan(&count)
@@ -298,6 +325,7 @@ func IsPelayananValid(db *database.DB, idPelayanan int) (bool, error) {
 	return count > 0, nil
 }
 
+// IsTransaksiValid memvalidasi apakah ID Transaksi valid.
 func IsTransaksiValid(db *database.DB, idTransaksi int) (bool, error) {
 	var count int
 	err := db.QueryRow("SELECT COUNT(*) FROM transaksi_laundry WHERE id_transaksi = $1", idTransaksi).Scan(&count)
@@ -308,11 +336,13 @@ func IsTransaksiValid(db *database.DB, idTransaksi int) (bool, error) {
 	return count > 0, nil
 }
 
+// IsValidDate memvalidasi apakah format tanggal valid.
 func IsValidDate(date string) bool {
 	_, err := time.Parse("2006-01-02", date)
 	return err == nil
 }
 
+// GetHargaPelayanan mengambil harga pelayanan berdasarkan ID Pelayanan.
 func GetHargaPelayanan(db *database.DB, idPelayanan int) (float64, error) {
 	var harga float64
 	err := db.QueryRow("SELECT harga FROM pelayanan WHERE id_pelayanan = $1", idPelayanan).Scan(&harga)
@@ -321,4 +351,9 @@ func GetHargaPelayanan(db *database.DB, idPelayanan int) (float64, error) {
 	}
 
 	return harga, nil
+}
+
+// NewTransaksiRepository membuat instance TransaksiRepository baru.
+func NewTransaksiRepository(db *database.DB) TransaksiRepository {
+	return &transaksiRepository{db: db}
 }

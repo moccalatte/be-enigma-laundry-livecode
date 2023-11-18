@@ -3,7 +3,6 @@ package database
 import (
 	"database/sql"
 	"fmt"
-	"log"
 
 	_ "github.com/lib/pq"
 )
@@ -31,5 +30,6 @@ func InitDB() (*DB, error) {
 		return nil, err
 	}
 
+	// Mengembalikan *DB
 	return &DB{db}, nil
 }

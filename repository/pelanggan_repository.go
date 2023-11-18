@@ -1,17 +1,39 @@
-package pelanggan
+package repository
 
 import (
+	"be-enigma-laundry-livecode/model/entity"
 	"be-enigma-laundry-livecode/database"
 	"fmt"
 	"log"
 )
 
-type Pelanggan struct {
-	ID   int
-	Nama string
-	NoHP string
+//antarmuka untuk operasi data pelanggan.
+type PelangganRepository interface {
+	Get(id string) (entity.Pelanggan, error)
 }
 
+type pelangganRepository struct {
+	db *database.DB
+}
+
+//mengembalikan data pelanggan berdasarkan ID.
+func (pr *pelangganRepository) Get(id string) (entity.Pelanggan, error) {
+	var pelanggan entity.Pelanggan
+	err := pr.db.QueryRow(`SELECT * FROM pelanggan WHERE id = $1`, id).
+		Scan(
+			&pelanggan.ID,
+			&pelanggan.Nama,
+			&pelanggan.NoHP,
+		)
+
+	if err != nil {
+		return entity.Pelanggan{}, err
+	}
+
+	return pelanggan, nil
+}
+
+//menampilkan menu untuk entitas pelanggan.
 func ShowMenuPelanggan(db *database.DB) {
 	for {
 		fmt.Println("\n==== Menu Pelanggan ====")
@@ -36,6 +58,7 @@ func ShowMenuPelanggan(db *database.DB) {
 	}
 }
 
+//menampilkan data pelanggan.
 func ViewPelanggan(db *database.DB) {
 	rows, err := db.Query("SELECT id_pelanggan, nama, no_hp FROM pelanggan")
 	if err != nil {
@@ -58,6 +81,7 @@ func ViewPelanggan(db *database.DB) {
 	fmt.Println()
 }
 
+//menambahkan data pelanggan.
 func InsertPelanggan(db *database.DB) {
 	var nama, noHP string
 
@@ -66,7 +90,7 @@ func InsertPelanggan(db *database.DB) {
 	fmt.Print("Masukkan No HP Pelanggan: ")
 	fmt.Scan(&noHP)
 
-	//Validasi apakah no HP sudah ada
+	// Validasi apakah no HP sudah ada
 	exists, err := IsNoHPExists(db, noHP)
 	if err != nil {
 		log.Fatal(err)
@@ -84,6 +108,7 @@ func InsertPelanggan(db *database.DB) {
 	fmt.Println("Data Pelanggan berhasil ditambahkan.")
 }
 
+// IsNoHPExists memeriksa apakah no HP sudah ada di database.
 func IsNoHPExists(db *database.DB, noHP string) (bool, error) {
 	var count int
 	err := db.QueryRow("SELECT COUNT(*) FROM pelanggan WHERE no_hp = $1", noHP).Scan(&count)
@@ -91,4 +116,9 @@ func IsNoHPExists(db *database.DB, noHP string) (bool, error) {
 		return false, err
 	}
 	return count > 0, nil
+}
+
+// NewPelangganRepository membuat instance PelangganRepository.
+func NewPelangganRepository(db *database.DB) PelangganRepository {
+	return &pelangganRepository{db: db}
 }
