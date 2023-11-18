@@ -13,7 +13,7 @@ type Pelayanan struct {
 	Harga         float64
 }
 
-func showMenuPelayanan(db *sql.DB) {
+func ShowMenuPelayanan(db *sql.DB) {
 	for {
 		fmt.Println("\n==== Menu Pelayanan ====")
 		fmt.Println("1. Daftar Pelayanan")
@@ -26,9 +26,9 @@ func showMenuPelayanan(db *sql.DB) {
 
 		switch choice {
 		case 1:
-			viewPelayanan(db)
+			ViewPelayanan(db)
 		case 2:
-			insertPelayanan(db)
+			InsertPelayanan(db)
 		case 0:
 			return
 		default:
@@ -37,7 +37,7 @@ func showMenuPelayanan(db *sql.DB) {
 	}
 }
 
-func viewPelayanan(db *sql.DB) {
+func ViewPelayanan(db *sql.DB) {
 	rows, err := db.Query("SELECT id_pelayanan, nama_pelayanan, satuan, harga FROM pelayanan")
 	if err != nil {
 		log.Fatal(err)
@@ -60,7 +60,7 @@ func viewPelayanan(db *sql.DB) {
 	fmt.Println()
 }
 
-func insertPelayanan(db *sql.DB) {
+func InsertPelayanan(db *sql.DB) {
 	var namaPelayanan, satuan string
 	var harga float64
 

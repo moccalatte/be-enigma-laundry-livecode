@@ -12,7 +12,7 @@ type Pelanggan struct {
 	NoHP string
 }
 
-func showMenuPelanggan(db *sql.DB) {
+func ShowMenuPelanggan(db *sql.DB) {
 	for {
 		fmt.Println("\n==== Menu Pelanggan ====")
 		fmt.Println("1. Daftar Pelanggan")
@@ -25,9 +25,9 @@ func showMenuPelanggan(db *sql.DB) {
 
 		switch choice {
 		case 1:
-			viewPelanggan(db)
+			ViewPelanggan(db)
 		case 2:
-			insertPelanggan(db)
+			InsertPelanggan(db)
 		case 0:
 			return
 		default:
@@ -36,7 +36,7 @@ func showMenuPelanggan(db *sql.DB) {
 	}
 }
 
-func viewPelanggan(db *sql.DB) {
+func ViewPelanggan(db *sql.DB) {
 	rows, err := db.Query("SELECT id_pelanggan, nama, no_hp FROM pelanggan")
 	if err != nil {
 		log.Fatal(err)
@@ -58,7 +58,7 @@ func viewPelanggan(db *sql.DB) {
 	fmt.Println()
 }
 
-func insertPelanggan(db *sql.DB) {
+func InsertPelanggan(db *sql.DB) {
 	var nama, noHP string
 
 	fmt.Print("Masukkan Nama Pelanggan: ")
@@ -67,7 +67,7 @@ func insertPelanggan(db *sql.DB) {
 	fmt.Scan(&noHP)
 
 	//Validasi apakah no HP sudah ada
-	exists, err := isNoHPExists(db, noHP)
+	exists, err := IsNoHPExists(db, noHP)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -84,7 +84,7 @@ func insertPelanggan(db *sql.DB) {
 	fmt.Println("Data Pelanggan berhasil ditambahkan.")
 }
 
-func isNoHPExists(db *sql.DB, noHP string) (bool, error) {
+func IsNoHPExists(db *sql.DB, noHP string) (bool, error) {
 	var count int
 	err := db.QueryRow("SELECT COUNT(*) FROM pelanggan WHERE no_hp = $1", noHP).Scan(&count)
 	if err != nil {

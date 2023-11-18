@@ -1,15 +1,13 @@
 package main
 
 import (
+	"be-enigma-laundry-livecode/database"
+	"be-enigma-laundry-livecode/pelanggan"
+	"be-enigma-laundry-livecode/pelayanan"
+	"be-enigma-laundry-livecode/transaksi"
 	"fmt"
 	"log"
-
-	"./database"
-	"./pelanggan"
-	"./pelayanan"
-	"./transaksi"
 )
-
 
 func main() {
 	db, err := database.InitDB()

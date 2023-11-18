@@ -77,7 +77,7 @@ func InsertTransaksi(db *sql.DB) {
 	fmt.Scan(&t.IDPelanggan)
 
 	// Validasi apakah ID Pelanggan valid
-	validPelanggan, err := isPelangganValid(db, t.IDPelanggan)
+	validPelanggan, err := IsPelangganValid(db, t.IDPelanggan)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -90,7 +90,7 @@ func InsertTransaksi(db *sql.DB) {
 	fmt.Scan(&t.IDPelayanan)
 
 	// Validasi apakah ID Pelayanan valid
-	validPelayanan, err := isPelayananValid(db, t.IDPelayanan)
+	validPelayanan, err := IsPelayananValid(db, t.IDPelayanan)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -112,7 +112,7 @@ func InsertTransaksi(db *sql.DB) {
 	fmt.Scan(&tanggalMasuk)
 
 	// Validasi apakah format tanggal masuk valid
-	if !isValidDate(tanggalMasuk) {
+	if !IsValidDate(tanggalMasuk) {
 		fmt.Println("Salah. Gunakan format YYYY-MM-DD.")
 		return
 	}
@@ -121,7 +121,7 @@ func InsertTransaksi(db *sql.DB) {
 	fmt.Scan(&tanggalSelesai)
 
 	// Validasi apakah format tanggal selesai valid
-	if !isValidDate(tanggalSelesai) {
+	if !IsValidDate(tanggalSelesai) {
 		fmt.Println("Salah. Gunakan format YYYY-MM-DD.")
 		return
 	}
@@ -133,7 +133,7 @@ func InsertTransaksi(db *sql.DB) {
 	fmt.Scan(&t.DiterimaOleh)
 
 	// Validasi apakah total harga sesuai dengan pelayanan
-	hargaPelayanan, err := getHargaPelayanan(db, t.IDPelayanan)
+	hargaPelayanan, err := GetHargaPelayanan(db, t.IDPelayanan)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -163,7 +163,7 @@ func UpdateTransaksi(db *sql.DB) {
 	fmt.Scan(&t.ID)
 
 	// Validasi apakah ID Transaksi valid
-	validTransaksi, err := isTransaksiValid(db, t.ID)
+	validTransaksi, err := IsTransaksiValid(db, t.ID)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -176,7 +176,7 @@ func UpdateTransaksi(db *sql.DB) {
 	fmt.Scan(&t.IDPelanggan)
 
 	// Validasi apakah ID Pelanggan valid
-	validPelanggan, err := isPelangganValid(db, t.IDPelanggan)
+	validPelanggan, err := IsPelangganValid(db, t.IDPelanggan)
 
 	if err != nil {
 		log.Fatal(err)
@@ -190,7 +190,7 @@ func UpdateTransaksi(db *sql.DB) {
 	fmt.Scan(&t.IDPelayanan)
 
 	// Validasi apakah ID Pelayanan valid
-	validPelayanan, err := isPelayananValid(db, t.IDPelayanan)
+	validPelayanan, err := IsPelayananValid(db, t.IDPelayanan)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -212,7 +212,7 @@ func UpdateTransaksi(db *sql.DB) {
 	fmt.Scan(&tanggalMasuk)
 
 	// Validasi apakah format tanggal masuk valid
-	if !isValidDate(tanggalMasuk) {
+	if !IsValidDate(tanggalMasuk) {
 		fmt.Println("Salah. Gunakan format YYYY-MM-DD.")
 		return
 	}
@@ -221,7 +221,7 @@ func UpdateTransaksi(db *sql.DB) {
 	fmt.Scan(&tanggalSelesai)
 
 	// Validasi apakah format tanggal selesai valid
-	if !isValidDate(tanggalSelesai) {
+	if !IsValidDate(tanggalSelesai) {
 		fmt.Println("Salah. Gunakan format YYYY-MM-DD.")
 		return
 	}
@@ -233,7 +233,7 @@ func UpdateTransaksi(db *sql.DB) {
 	fmt.Scan(&t.DiterimaOleh)
 
 	// Validasi apakah total harga sesuai dengan pelayanan
-	hargaPelayanan, err := getHargaPelayanan(db, t.IDPelayanan)
+	hargaPelayanan, err := GetHargaPelayanan(db, t.IDPelayanan)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -262,7 +262,7 @@ func DeleteTransaksi(db *sql.DB) {
 	fmt.Scan(&idTransaksi)
 
 	//Validasi apakah ID Transaksi valid
-	validTransaksi, err := isTransaksiValid(db, idTransaksi)
+	validTransaksi, err := IsTransaksiValid(db, idTransaksi)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -278,7 +278,7 @@ func DeleteTransaksi(db *sql.DB) {
 	fmt.Println("Data Transaksi Laundry berhasil dihapus.")
 }
 
-func isPelangganValid(db *sql.DB, idPelanggan int) (bool, error) {
+func IsPelangganValid(db *sql.DB, idPelanggan int) (bool, error) {
 	var count int
 	err := db.QueryRow("SELECT COUNT(*) FROM pelanggan WHERE id_pelanggan = $1", idPelanggan).Scan(&count)
 	if err != nil {
@@ -288,7 +288,7 @@ func isPelangganValid(db *sql.DB, idPelanggan int) (bool, error) {
 	return count > 0, nil
 }
 
-func isPelayananValid(db *sql.DB, idPelayanan int) (bool, error) {
+func IsPelayananValid(db *sql.DB, idPelayanan int) (bool, error) {
 	var count int
 	err := db.QueryRow("SELECT COUNT(*) FROM pelayanan WHERE id_pelayanan = $1", idPelayanan).Scan(&count)
 	if err != nil {
@@ -298,7 +298,7 @@ func isPelayananValid(db *sql.DB, idPelayanan int) (bool, error) {
 	return count > 0, nil
 }
 
-func isTransaksiValid(db *sql.DB, idTransaksi int) (bool, error) {
+func IsTransaksiValid(db *sql.DB, idTransaksi int) (bool, error) {
 	var count int
 	err := db.QueryRow("SELECT COUNT(*) FROM transaksi_laundry WHERE id_transaksi = $1", idTransaksi).Scan(&count)
 	if err != nil {
@@ -308,12 +308,12 @@ func isTransaksiValid(db *sql.DB, idTransaksi int) (bool, error) {
 	return count > 0, nil
 }
 
-func isValidDate(date string) bool {
+func IsValidDate(date string) bool {
 	_, err := time.Parse("2006-01-02", date)
 	return err == nil
 }
 
-func getHargaPelayanan(db *sql.DB, idPelayanan int) (float64, error) {
+func GetHargaPelayanan(db *sql.DB, idPelayanan int) (float64, error) {
 	var harga float64
 	err := db.QueryRow("SELECT harga FROM pelayanan WHERE id_pelayanan = $1", idPelayanan).Scan(&harga)
 	if err != nil {
